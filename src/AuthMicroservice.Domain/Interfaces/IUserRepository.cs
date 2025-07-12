@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using AuthMicroservice.Domain.Entities;
 
 namespace AuthMicroservice.Domain.Interfaces
 {
@@ -11,27 +12,27 @@ namespace AuthMicroservice.Domain.Interfaces
         /// <summary>
         /// Obtiene un usuario por su email
         /// </summary>
-        Task<object> GetByEmailAsync(string email);
+        Task<User> GetByEmailAsync(string email);
         
         /// <summary>
         /// Obtiene un usuario por su ID
         /// </summary>
-        Task<object> GetByIdAsync(Guid id);
+        Task<User> GetByIdAsync(Guid id);
         
         /// <summary>
         /// Obtiene un usuario por su nombre de usuario
         /// </summary>
-        Task<object> GetByUsernameAsync(string username);
+        Task<User> GetByUsernameAsync(string username);
         
         /// <summary>
         /// Crea un nuevo usuario
         /// </summary>
-        Task<bool> CreateAsync(object user);
+        Task<bool> CreateAsync(User user);
         
         /// <summary>
         /// Actualiza un usuario existente
         /// </summary>
-        Task<bool> UpdateAsync(object user);
+        Task<bool> UpdateAsync(User user);
         
         /// <summary>
         /// Elimina un usuario
