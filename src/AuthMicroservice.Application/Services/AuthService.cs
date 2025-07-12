@@ -28,29 +28,19 @@ namespace AuthMicroservice.Application.Services
         public async Task<string> LoginAsync(LoginRequestDto loginRequest)
         {
             var userObj = await _userRepository.GetByEmailAsync(loginRequest.Email);
-            
+
             // Si el usuario no existe, lanzar excepción
             if (userObj == null)
             {
                 throw new UnauthorizedAccessException("Credenciales inválidas.");
             }
 
-            // Usamos reflexión para acceder a las propiedades de manera segura
-            var userType = userObj.GetType();
-            var passwordHashProperty = userType.GetProperty("PasswordHash");
-            var usernameProperty = userType.GetProperty("Username");
-            var userIdProperty = userType.GetProperty("UserId");
+            // Acceder directamente a las propiedades del objeto
+            var passwordHash = userObj.PasswordHash;
+            var username = userObj.Username;
+            var userId = userObj.Id;
 
-            if (passwordHashProperty == null || usernameProperty == null || userIdProperty == null)
-            {
-                throw new InvalidOperationException("El objeto de usuario no tiene las propiedades esperadas.");
-            }
-
-            var passwordHash = passwordHashProperty.GetValue(userObj) as string;
-            var username = usernameProperty.GetValue(userObj) as string;
-            var userId = userIdProperty.GetValue(userObj);
-
-            if (passwordHash == null || username == null || userId == null)
+            if (string.IsNullOrEmpty(passwordHash) || string.IsNullOrEmpty(username) || userId == Guid.Empty)
             {
                 throw new InvalidOperationException("Valores de usuario no válidos.");
             }
