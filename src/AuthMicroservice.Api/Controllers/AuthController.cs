@@ -283,22 +283,10 @@ namespace AuthMicroservice.Api.Controllers
 
         private async Task<string> GenerateRefreshToken(AuthMicroservice.Infrastructure.Data.User user)
         {
-            var tokenId = Guid.NewGuid().ToString();
-
-            var refreshToken = new AuthMicroservice.Infrastructure.Data.RefreshToken
-            {
-                Token = tokenId,
-                ExpirationDate = DateTime.UtcNow.AddDays(7),
-                UserId = user.UserId
-            };
-
-            _dbContext.RefreshTokens.Add(refreshToken);
-            await _dbContext.SaveChangesAsync();
-
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("jti", tokenId)
+                new Claim("jti", Guid.NewGuid().ToString())
             };
 
             var jwtSettings = _configuration.GetSection("JwtSettings");
@@ -321,7 +309,19 @@ namespace AuthMicroservice.Api.Controllers
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var refreshToken = tokenHandler.WriteToken(token);
+
+            var refreshTokenEntity = new AuthMicroservice.Infrastructure.Data.RefreshToken
+            {
+                Token = refreshToken,
+                ExpirationDate = tokenDescriptor.Expires.Value,
+                UserId = user.UserId
+            };
+
+            _dbContext.RefreshTokens.Add(refreshTokenEntity);
+            await _dbContext.SaveChangesAsync();
+
+            return refreshToken;
         }
 
         private async Task<List<string>> GetUserRoles(Guid userId)
